@@ -1,0 +1,17 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: cronjob-monitor-sites
+spec:
+  schedule: "*/1 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: monitor-sites
+            image: azurenapratica/jobmonitorsites-slack:1.0
+            env:
+            - name: UrlLogicAppMonitoramento
+              value: URL VÁLIDA
+          restartPolicy: OnFailure

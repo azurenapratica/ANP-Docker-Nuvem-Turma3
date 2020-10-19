@@ -1,0 +1,33 @@
+name: ASP.NET Core + REST API + Azure Container Registry + Azure App Service
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    env:
+      NOME_WEBAPP_AZURE: groffegithubactions
+      NOME_IMAGEM: apiteste
+      IMAGEM_AZURE: ${{ secrets.AZURE_CONTAINER_REGISTRY_SERVER }}/$NOME_IMAGEM
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Login no Container Registry
+      uses: docker/login-action@v1.4.1
+      with:
+        username: ${{ secrets.AZURE_CONTAINER_REGISTRY_USERNAME }}
+        password: ${{ secrets.AZURE_CONTAINER_REGISTRY_PASSWORD }}
+        registry: ${{ secrets.AZURE_CONTAINER_REGISTRY_SERVER }}
+        
+    - name: Build e Push no Azure Container Registry
+      run: |
+        docker build . --file Dockerfile --tag ${{ env.IMAGEM_AZURE }}:latest
+        docker tag ${{ env.IMAGEM_AZURE }}:latest ${{ env.IMAGEM_AZURE }}:$GITHUB_RUN_NUMBER
+        docker images ${{ env.IMAGEM_AZURE }}
+        docker push ${{ env.IMAGEM_AZURE }}
